@@ -28,7 +28,6 @@ Term.Colors = {
 			
 Term.FullSize = false
 
-
 --Global functions
 function Term.space( times )
 	return string.rep( " ", times ) --Used to create spacing for messages.
@@ -98,20 +97,14 @@ end
 --------------------------------
 ---- Including the commands ----
 --------------------------------
-include("cmds/cd.lua")	      --
-include("cmds/ls.lua")	      --
-include("cmds/pwd.lua")	      --
-include("cmds/cat.lua")	      --
-include("cmds/echo.lua")      --
-include("cmds/termcolor.lua") --
+include("cmds/cmds_main.lua")
+AddCSLuaFile( "cmds/cmds_main.lua" )
 --------------------------------
 --------------------------------
-
-
-
 
 if CLIENT then --We do not want to execute this on the server.
-
+	
+include( "cmds/cmds_main.lua" )
 --fonts
 surface.CreateFont("terminaltitle", {font="Myriad Pro", size=18, antialias=true}) --Title
 surface.CreateFont("terminalfont", {font="ProFontWindows", size=12, antialias=true}) --Terminal font.
@@ -209,48 +202,7 @@ function Term.Menu() --Function for drawing the menu
 		--command[2] = -A
 		--command[3] = file.lua
 
-		if command[1] == "pwd" then --Check if the first word entered is pwd
-			Term.pwd() --If it was execute the pwd function in cmds/pwd.lua
-		end
-
-		if command[1] == "clear" then --If the command entered is 'clear'
-			textarea:SetValue("")	  --Remove all text from the textarea
-		end
-
-		if command[1] == "cd" then --If the command is cd
-			if #command == 1 then return end -- If there is only one item in the list return. We need to pass through a file as a parameter.
-			Term.cd(command[2]) --Execute the cd command in "cmds/cd.lua" passing through the file as the parameter.
-		end
-
-		if command[1] == "ls" then --If the command is ls
-			Term.ls() --Execute the ls command in "cmds/ls.lua"
-		end
-
-		if command[1] == "echo" then --If the command is echo
-			if #command == 1 then Term.alert("You need to pass through a string.") end -- If there is only one item in the list chuck out an error.
-			Term.echo(command)  --Execute the echo function is cmds/echo.lua
-								--We send through the command table and deal with it in the echo function.
-		end
-
-		if command[1] == "exit" then --If the command is 'exit'
-			frame:Remove() --Remove the frame.
-			Term.Text = ""
-			Term.Path = ""
-			--We don't save the text of the session as we assume they want to completely exit and start a new window fresh.
-		end
-
-		if command[1] == "cat" then --If the command is cat
-			if command[3] then --If there is a third parameter we want to pass in an option as well as the file.
-				Term.cat(command[3], command[2]) --The first parameter is the file and the second is the option.
-												 --The command is typically executed cat -option file
-			else --If otherwise we just want to pass in the file.
-				Term.cat(command[2]) --The second item in the array will be the file.
-			end
-		end
-
-		if command[1] == "termcolor" then --If the command is termcolor
-			Term.Colorize(command) --Send through the command table to the function
-		end
+		Term.handleCommands( command )
 
 		Term.LastCommand = commandbox:GetValue() --When the command is sent we save it as the last command so we can get it by pressing up.
 		textarea:SetCaretPos(#textarea:GetValue()) --Set the caret pos so the text area is always at the bottom.
